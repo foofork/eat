@@ -1,0 +1,3 @@
+"""
+EAT Framework CLI tools.
+"""

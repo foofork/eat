@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  catalog-server:
+    image: nginx:alpine
+    ports:
+      - "8000:80"
+    volumes:
+      - ./site:/usr/share/nginx/html
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - customer-server
+      - analytics-server
+      - notifications-server
+
+  customer-server:
+    build: 
+      context: ./servers
+      dockerfile: Dockerfile
+    command: python customer_server.py
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+      - DB_FILE=/data/customers.db
+    volumes:
+      - customer_data:/data
+
+  analytics-server:
+    build: 
+      context: ./servers
+      dockerfile: Dockerfile
+    command: python analytics_server.py
+    ports:
+      - "3002:3002"
+    environment:
+      - PORT=3002
+      - CUSTOMER_SERVICE_URL=http://customer-server:3001
+    depends_on:
+      - customer-server
+
+  notifications-server:
+    build: 
+      context: ./servers
+      dockerfile: Dockerfile
+    command: python notifications_server.py
+    ports:
+      - "3003:3003"
+    environment:
+      - PORT=3003
+      - SMTP_SERVER=localhost
+      - SMTP_PORT=1025
+
+volumes:
+  customer_data:

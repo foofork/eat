@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EAT Framework - Interactive Tool Catalog</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .stats {
+            background: #f8f9fa;
+            padding: 20px;
+            display: flex;
+            justify-content: space-around;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .stat {
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .filter-group label {
+            font-weight: 500;
+            color: #555;
+            font-size: 0.9em;
+        }
+        
+        .filter-group select, .filter-group input {
+            padding: 8px 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        .filter-group select:focus, .filter-group input:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+        
+        .tool-card {
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s;
+            background: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .tool-card:hover {
+            border-color: #3498db;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(52, 152, 219, 0.2);
+        }
+        
+        .tool-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+        
+        .tool-name {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+        
+        .tool-version {
+            background: #ecf0f1;
+            color: #7f8c8d;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: 500;
+        }
+        
+        .tool-description {
+            color: #666;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+        
+        .capabilities {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        
+        .capability {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 0.75em;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .tool-details {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #ecf0f1;
+        }
+        
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+        }
+        
+        .detail-label {
+            color: #7f8c8d;
+            font-weight: 500;
+        }
+        
+        .detail-value {
+            color: #2c3e50;
+            font-family: 'SF Mono', Monaco, monospace;
+            background: #f8f9fa;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        
+        .example {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 0.85em;
+            overflow-x: auto;
+        }
+        
+        .example-title {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+        
+        .try-button {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: 500;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+        
+        .try-button:hover {
+            background: linear-gradient(135deg, #229954, #27ae60);
+            transform: translateY(-1px);
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 60px;
+            color: #666;
+            font-size: 1.1em;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .error {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 5px solid #a93226;
+        }
+        
+        .error h3 {
+            margin-bottom: 10px;
+        }
+        
+        .error ul {
+            margin-left: 20px;
+        }
+        
+        .search-highlight {
+            background: #fff3cd;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .stats {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .filters {
+                flex-direction: column;
+            }
+            
+            .tools-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 EAT Framework</h1>
+            <p>Interactive Tool Catalog - Discover and explore AI agent tools</p>
+        </div>
+        
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-number" id="totalTools">-</div>
+                <div class="stat-label">Total Tools</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number" id="totalCapabilities">-</div>
+                <div class="stat-label">Capabilities</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number" id="totalServers">-</div>
+                <div class="stat-label">MCP Servers</div>
+            </div>
+        </div>
+        
+        <div class="content">
+            <div class="filters">
+                <div class="filter-group">
+                    <label for="searchInput">Search Tools</label>
+                    <input type="text" id="searchInput" placeholder="Search by name or description...">
+                </div>
+                <div class="filter-group">
+                    <label for="capabilityFilter">Filter by Capability</label>
+                    <select id="capabilityFilter">
+                        <option value="">All Capabilities</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="serverFilter">Filter by Server</label>
+                    <select id="serverFilter">
+                        <option value="">All Servers</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div id="status" class="loading">
+                <div class="spinner"></div>
+                Loading tool catalog...
+            </div>
+            <div id="tools" class="tools-grid"></div>
+        </div>
+    </div>
+
+    <script>
+        let allTools = [];
+        let filteredTools = [];
+        
+        async function loadCatalog() {
+            try {
+                const response = await fetch('/.well-known/api-catalog');
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const catalog = await response.json();
+                allTools = catalog.tools || [];
+                filteredTools = [...allTools];
+                
+                displayCatalog(catalog);
+                setupFilters();
+                updateStats();
+                
+            } catch (error) {
+                document.getElementById('status').innerHTML = `
+                    <div class="error">
+                        <h3>🚨 Error loading catalog</h3>
+                        <p><strong>Details:</strong> ${error.message}</p>
+                        <h4>Troubleshooting Steps:</h4>
+                        <ul>
+                            <li>Ensure you have a <code>catalog.json</code> file in the directory</li>
+                            <li>Run <code>eat-gen</code> to generate a catalog from <code>specs/</code> directory</li>
+                            <li>Check that your OpenAPI specs include <code>x-mcp-tool</code> extensions</li>
+                            <li>Verify MCP servers are running on the specified ports</li>
+                        </ul>
+                    </div>
+                `;
+            }
+        }
+        
+        function displayCatalog(catalog) {
+            const statusDiv = document.getElementById('status');
+            const toolsDiv = document.getElementById('tools');
+            
+            if (!allTools.length) {
+                statusDiv.innerHTML = `
+                    <div class="error">
+                        <h3>📋 No tools found</h3>
+                        <p>The catalog is empty. Add OpenAPI specifications with <code>x-mcp-tool</code> extensions to the <code>specs/</code> directory and regenerate the catalog.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            statusDiv.style.display = 'none';
+            renderTools(filteredTools);
+        }
+        
+        function renderTools(tools) {
+            const toolsDiv = document.getElementById('tools');
+            
+            if (!tools.length) {
+                toolsDiv.innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #666;">
+                        <h3>🔍 No tools match your filters</h3>
+                        <p>Try adjusting your search or filter criteria.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            toolsDiv.innerHTML = tools.map(tool => {
+                const mcpConfig = tool['x-mcp-tool'] || {};
+                const capabilities = mcpConfig.capabilities || [];
+                const examples = mcpConfig.examples || [];
+                const serverUrl = mcpConfig.server_url || 'Unknown';
+                
+                return `
+                    <div class="tool-card">
+                        <div class="tool-header">
+                            <div>
+                                <div class="tool-name">${escapeHtml(tool.name || 'Unnamed Tool')}</div>
+                                <div class="tool-version">v${tool.version || '1.0.0'}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="tool-description">
+                            ${escapeHtml(tool.description || 'No description available')}
+                        </div>
+                        
+                        ${capabilities.length ? `
+                            <div class="capabilities">
+                                ${capabilities.map(cap => `<span class="capability">${escapeHtml(cap)}</span>`).join('')}
+                            </div>
+                        ` : ''}
+                        
+                        <div class="tool-details">
+                            <div class="detail-row">
+                                <span class="detail-label">Server:</span>
+                                <span class="detail-value">${escapeHtml(serverUrl)}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Method:</span>
+                                <span class="detail-value">${mcpConfig.method || 'POST'}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Path:</span>
+                                <span class="detail-value">${mcpConfig.path || '/unknown'}</span>
+                            </div>
+                        </div>
+                        
+                        ${examples.length ? `
+                            <div class="example">
+                                <div class="example-title">📝 Example Usage</div>
+                                <pre>${JSON.stringify(examples[0], null, 2)}</pre>
+                                <button class="try-button" onclick="generateAgentCode('${tool.name}')">
+                                    🤖 Generate Agent Code
+                                </button>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function setupFilters() {
+            // Get all unique capabilities and servers
+            const capabilities = new Set();
+            const servers = new Set();
+            
+            allTools.forEach(tool => {
+                const mcpConfig = tool['x-mcp-tool'] || {};
+                (mcpConfig.capabilities || []).forEach(cap => capabilities.add(cap));
+                if (mcpConfig.server_url) {
+                    servers.add(mcpConfig.server_url);
+                }
+            });
+            
+            // Populate capability filter
+            const capabilityFilter = document.getElementById('capabilityFilter');
+            Array.from(capabilities).sort().forEach(capability => {
+                const option = document.createElement('option');
+                option.value = capability;
+                option.textContent = capability;
+                capabilityFilter.appendChild(option);
+            });
+            
+            // Populate server filter
+            const serverFilter = document.getElementById('serverFilter');
+            Array.from(servers).sort().forEach(server => {
+                const option = document.createElement('option');
+                option.value = server;
+                option.textContent = server.replace(/^https?:\\/\\//, '');
+                serverFilter.appendChild(option);
+            });
+            
+            // Setup event listeners
+            document.getElementById('searchInput').addEventListener('input', applyFilters);
+            document.getElementById('capabilityFilter').addEventListener('change', applyFilters);
+            document.getElementById('serverFilter').addEventListener('change', applyFilters);
+        }
+        
+        function applyFilters() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const selectedCapability = document.getElementById('capabilityFilter').value;
+            const selectedServer = document.getElementById('serverFilter').value;
+            
+            filteredTools = allTools.filter(tool => {
+                const mcpConfig = tool['x-mcp-tool'] || {};
+                
+                // Search filter
+                const matchesSearch = !searchTerm || 
+                    (tool.name || '').toLowerCase().includes(searchTerm) ||
+                    (tool.description || '').toLowerCase().includes(searchTerm);
+                
+                // Capability filter
+                const matchesCapability = !selectedCapability ||
+                    (mcpConfig.capabilities || []).includes(selectedCapability);
+                
+                // Server filter
+                const matchesServer = !selectedServer ||
+                    mcpConfig.server_url === selectedServer;
+                
+                return matchesSearch && matchesCapability && matchesServer;
+            });
+            
+            renderTools(filteredTools);
+            updateStats();
+        }
+        
+        function updateStats() {
+            const capabilities = new Set();
+            const servers = new Set();
+            
+            filteredTools.forEach(tool => {
+                const mcpConfig = tool['x-mcp-tool'] || {};
+                (mcpConfig.capabilities || []).forEach(cap => capabilities.add(cap));
+                if (mcpConfig.server_url) {
+                    servers.add(mcpConfig.server_url);
+                }
+            });
+            
+            document.getElementById('totalTools').textContent = filteredTools.length;
+            document.getElementById('totalCapabilities').textContent = capabilities.size;
+            document.getElementById('totalServers').textContent = servers.size;
+        }
+        
+        function generateAgentCode(toolName) {
+            const tool = allTools.find(t => t.name === toolName);
+            if (!tool) return;
+            
+            const agentCode = `#!/usr/bin/env python3
+"""
+Auto-generated agent for using the ${tool.name} tool.
+Generated by EAT Framework Interactive Catalog.
+"""
+
+import asyncio
+from eat import Catalog
+
+async def main():
+    # Initialize catalog
+    catalog = Catalog("http://localhost:8000/.well-known/api-catalog")
+    await catalog.fetch()
+    await catalog.verify()
+    
+    # Get the ${tool.name} tool
+    tool = catalog.get_tool("${tool.name}")
+    if not tool:
+        print("❌ Tool '${tool.name}' not found in catalog")
+        return
+    
+    print(f"🔧 Using tool: {tool.name}")
+    print(f"📝 Description: {tool.description}")
+    
+    # Example usage (customize parameters as needed)
+    try:
+        result = await tool.call(
+            # Add your parameters here based on the tool's schema
+            # Example: customer_id=12345
+        )
+        
+        print("✅ Tool execution successful!")
+        print(f"📊 Result: {result}")
+        
+    except Exception as e:
+        print(f"❌ Tool execution failed: {e}")
+
+if __name__ == "__main__":
+    asyncio.run(main())`;
+            
+            // Create a temporary download
+            const blob = new Blob([agentCode], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${toolName}_agent.py`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            // Show success message
+            alert(`🤖 Agent code generated for ${toolName}!\\n\\nThe file ${toolName}_agent.py has been downloaded. Customize the parameters in the tool.call() method according to your needs.`);
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // Load catalog on page load
+        loadCatalog();
+    </script>
+</body>
+</html>
