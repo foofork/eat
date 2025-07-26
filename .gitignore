@@ -122,3 +122,9 @@ archive/
 claude.metadata
 .hive-mind/
 .swarm/
+memory/*
+coordination/
+memory/agents
+claude-flow*
+claude-flow.ps1
+claude.md
