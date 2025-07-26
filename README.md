@@ -4,9 +4,32 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Tests](https://github.com/foofork/eat/workflows/CI/badge.svg)](https://github.com/foofork/eat/actions)
 
-**One-hop tool discovery for AI agents using signed .well-known catalogs**
+**One-hop tool discovery for AI agents (and humans) using signed .well-known catalogs**
 
-Most people know MCP for connecting AI agents to third-party tools like GitHub and Slack, but there's an elegant approach using signed .well-known catalogs that lets ephemeral agents discover your entire internal tool ecosystem in a single hop - no registries required.
+Most people know MCP for connecting AI agents to third-party tools, but there's an elegant approach using signed .well-known catalogs that lets anyone - agents, developers, or automation scripts - discover your entire internal tool ecosystem in a single hop.
+
+## 🎯 Who It's For
+
+- **AI Agents**: Autonomous tool discovery and intelligent selection
+- **Developers**: Quick discovery of internal APIs and services  
+- **DevOps Teams**: Simplified tool inventory and automation
+- **Organizations**: Scalable tool ecosystems without complex registries
+
+## 🤔 The Problem
+
+Organizations have hundreds of internal tools (APIs, MCP servers, services) but:
+- **AI agents** can't find or use them effectively
+- **Developers** waste time hunting for the right API
+- **Tool sprawl** grows faster than documentation
+- **Complex registries** become bottlenecks and single points of failure
+
+## 💡 The Solution
+
+Drop one signed file at `/.well-known/api-catalog` and everyone discovers your tools instantly:
+- **One HTTP GET** replaces complex service discovery
+- **Complete usage context** - auth, examples, error patterns  
+- **Cryptographically signed** for security and integrity
+- **Human + AI readable** - same catalog, different interfaces
 
 ## 🚀 Quick Start
 
