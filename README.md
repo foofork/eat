@@ -55,12 +55,29 @@ asyncio.run(demo())
 
 ## 📚 Documentation
 
+### 🚀 Quick Start Guides
+| Document | Description | Audience |
+|----------|-------------|----------|
+| **[QUICKSTART.md](QUICKSTART.md)** | 10-minute implementation tutorial | Everyone |
+| **[INSTALL.md](INSTALL.md)** | Installation guide with troubleshooting | Developers |
+| **[demo/README.md](demo/README.md)** | Demo environment documentation | Demo users |
+
+### 📖 Core Specifications  
 | Document | Description | Audience |
 |----------|-------------|----------|
 | **[PROTOCOL.md](PROTOCOL.md)** | Complete EAT protocol specification | Protocol implementers |
 | **[IMPLEMENTATION.md](IMPLEMENTATION.md)** | Language-agnostic implementation guide | Developers |
-| **[QUICKSTART.md](QUICKSTART.md)** | 10-minute implementation tutorial | Everyone |
-| **[demo/README.md](demo/README.md)** | Demo environment documentation | Demo users |
+
+### 🏗️ Technical Documentation
+| Document | Description | Audience |
+|----------|-------------|----------|
+| **[docs/README.md](docs/README.md)** | **📚 Complete technical documentation hub** | **Everyone** |
+| **[docs/architecture.md](docs/architecture.md)** | System architecture and design patterns | Architects, Engineers |
+| **[docs/security.md](docs/security.md)** | Security model, threats, and mitigations | Security teams |
+| **[docs/deployment.md](docs/deployment.md)** | Production deployment guide | DevOps, SRE |
+| **[docs/api-reference.md](docs/api-reference.md)** | Complete Python API documentation | Developers |
+| **[docs/comparison.md](docs/comparison.md)** | Technology comparison vs alternatives | Decision makers |
+| **[docs/troubleshooting.md](docs/troubleshooting.md)** | Common issues and solutions | Support teams |
 
 ## 🏗️ What's Included
 
@@ -268,7 +285,12 @@ MIT License - see LICENSE file for details.
 |-------------------|----------------|
 | **Implement EAT in my language** | [QUICKSTART.md](QUICKSTART.md) |
 | **Try the demo** | `cd demo && ./quickstart.sh` |
+| **Read complete documentation** | **[docs/README.md](docs/README.md)** |
 | **Read the protocol** | [PROTOCOL.md](PROTOCOL.md) |
+| **Plan production deployment** | [docs/deployment.md](docs/deployment.md) |
+| **Understand security model** | [docs/security.md](docs/security.md) |
+| **Compare with alternatives** | [docs/comparison.md](docs/comparison.md) |
+| **Get API reference** | [docs/api-reference.md](docs/api-reference.md) |
 | **See examples** | [examples/](examples/) directory |
 | **Understand implementation** | [IMPLEMENTATION.md](IMPLEMENTATION.md) |
 
