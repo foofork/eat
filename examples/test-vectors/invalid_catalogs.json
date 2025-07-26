@@ -1,0 +1,223 @@
+[
+  {
+    "test_name": "Missing Version",
+    "description": "Catalog without required version field",
+    "expected_result": "FAIL",
+    "error_type": "MISSING_REQUIRED_FIELD",
+    "test_data": {
+      "tools": []
+    }
+  },
+  {
+    "test_name": "Invalid Version",
+    "description": "Catalog with unsupported version",
+    "expected_result": "FAIL", 
+    "error_type": "INVALID_VERSION",
+    "test_data": {
+      "version": "2.0",
+      "tools": []
+    }
+  },
+  {
+    "test_name": "Missing Tools Array",
+    "description": "Catalog without tools field",
+    "expected_result": "FAIL",
+    "error_type": "MISSING_REQUIRED_FIELD",
+    "test_data": {
+      "version": "1.0"
+    }
+  },
+  {
+    "test_name": "Invalid Tools Type",
+    "description": "Tools field is not an array",
+    "expected_result": "FAIL",
+    "error_type": "INVALID_TYPE",
+    "test_data": {
+      "version": "1.0",
+      "tools": "not an array"
+    }
+  },
+  {
+    "test_name": "Tool Missing Name",
+    "description": "Tool without required name field",
+    "expected_result": "FAIL",
+    "error_type": "MISSING_REQUIRED_FIELD",
+    "test_data": {
+      "version": "1.0",
+      "tools": [
+        {
+          "description": "Tool without name",
+          "spec_url": "https://example.com/spec.yaml",
+          "x-mcp-tool": {
+            "server_url": "http://localhost:3001"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "test_name": "Tool Missing Description",
+    "description": "Tool without required description field",
+    "expected_result": "FAIL",
+    "error_type": "MISSING_REQUIRED_FIELD",
+    "test_data": {
+      "version": "1.0",
+      "tools": [
+        {
+          "name": "test_tool",
+          "spec_url": "https://example.com/spec.yaml",
+          "x-mcp-tool": {
+            "server_url": "http://localhost:3001"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "test_name": "Tool Missing spec_url",
+    "description": "Tool without required spec_url field",
+    "expected_result": "FAIL",
+    "error_type": "MISSING_REQUIRED_FIELD",
+    "test_data": {
+      "version": "1.0",
+      "tools": [
+        {
+          "name": "test_tool",
+          "description": "Test tool",
+          "x-mcp-tool": {
+            "server_url": "http://localhost:3001"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "test_name": "Tool Missing x-mcp-tool",
+    "description": "Tool without required x-mcp-tool extension",
+    "expected_result": "FAIL",
+    "error_type": "MISSING_REQUIRED_FIELD",
+    "test_data": {
+      "version": "1.0",
+      "tools": [
+        {
+          "name": "test_tool",
+          "description": "Test tool",
+          "spec_url": "https://example.com/spec.yaml"
+        }
+      ]
+    }
+  },
+  {
+    "test_name": "MCP Tool Missing server_url",
+    "description": "x-mcp-tool without required server_url",
+    "expected_result": "FAIL",
+    "error_type": "MISSING_REQUIRED_FIELD",
+    "test_data": {
+      "version": "1.0",
+      "tools": [
+        {
+          "name": "test_tool",
+          "description": "Test tool",
+          "spec_url": "https://example.com/spec.yaml",
+          "x-mcp-tool": {
+            "capabilities": ["testing"]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "test_name": "Invalid Tool Name",
+    "description": "Tool name with invalid characters",
+    "expected_result": "FAIL",
+    "error_type": "INVALID_FORMAT",
+    "test_data": {
+      "version": "1.0",
+      "tools": [
+        {
+          "name": "invalid tool name!",
+          "description": "Tool with invalid name",
+          "spec_url": "https://example.com/spec.yaml",
+          "x-mcp-tool": {
+            "server_url": "http://localhost:3001"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "test_name": "Invalid URL Format",
+    "description": "Tool with malformed URLs",
+    "expected_result": "FAIL",
+    "error_type": "INVALID_URL",
+    "test_data": {
+      "version": "1.0",
+      "tools": [
+        {
+          "name": "test_tool",
+          "description": "Tool with bad URL",
+          "spec_url": "not-a-url",
+          "x-mcp-tool": {
+            "server_url": "also-not-a-url"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "test_name": "Invalid Hash Format",
+    "description": "Tool with malformed spec_hash",
+    "expected_result": "FAIL",
+    "error_type": "INVALID_HASH",
+    "test_data": {
+      "version": "1.0",
+      "tools": [
+        {
+          "name": "test_tool",
+          "description": "Tool with bad hash",
+          "spec_url": "https://example.com/spec.yaml",
+          "spec_hash": "invalid-hash-format",
+          "x-mcp-tool": {
+            "server_url": "http://localhost:3001"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "test_name": "Invalid Version Format",
+    "description": "Tool with malformed version",
+    "expected_result": "FAIL",
+    "error_type": "INVALID_VERSION_FORMAT",
+    "test_data": {
+      "version": "1.0",
+      "tools": [
+        {
+          "name": "test_tool",
+          "description": "Tool with bad version",
+          "version": "not.a.version",
+          "spec_url": "https://example.com/spec.yaml",
+          "x-mcp-tool": {
+            "server_url": "http://localhost:3001"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "test_name": "Empty Catalog",
+    "description": "Catalog with empty tools array",
+    "expected_result": "PASS",
+    "test_data": {
+      "version": "1.0",
+      "tools": []
+    }
+  },
+  {
+    "test_name": "Invalid JSON",
+    "description": "Malformed JSON structure",
+    "expected_result": "FAIL",
+    "error_type": "INVALID_JSON",
+    "test_data": "{ invalid json structure"
+  }
+]

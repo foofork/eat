@@ -1,0 +1,26 @@
+{
+  "version": "1.0",
+  "metadata": {
+    "title": "Test Catalog",
+    "description": "Test catalog for unit tests",
+    "generated_at": "2024-01-20T10:00:00Z"
+  },
+  "tools": [
+    {
+      "name": "test_tool",
+      "description": "A test tool",
+      "spec_url": "http://localhost:3000/test_api.yaml",
+      "x-mcp-tool": {
+        "server_url": "http://localhost:3000",
+        "capabilities": ["testing"],
+        "examples": [
+          {
+            "description": "Test example",
+            "input": {},
+            "output": {"status": "ok"}
+          }
+        ]
+      }
+    }
+  ]
+}

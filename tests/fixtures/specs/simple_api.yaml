@@ -1,0 +1,29 @@
+openapi: 3.0.0
+info:
+  title: Test API
+  version: 1.0.0
+  description: Test API for EAT framework unit tests
+servers:
+  - url: http://localhost:3000
+paths:
+  /test:
+    get:
+      operationId: test_operation
+      summary: Test operation
+      x-mcp-tool:
+        server_url: http://localhost:3000
+        capabilities: ["testing"]
+        examples:
+          - description: Test call
+            input: {}
+            output: {"status": "ok"}
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string

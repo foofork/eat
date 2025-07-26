@@ -1,0 +1,58 @@
+{
+  "version": "1.0",
+  "metadata": {
+    "title": "Simple EAT Catalog",
+    "description": "Basic catalog with greeting and math tools",
+    "generated_at": "2024-01-20T10:00:00Z",
+    "generator": "eat-gen/1.0.0",
+    "publisher": "did:web:example.com"
+  },
+  "tools": [
+    {
+      "name": "say_hello",
+      "description": "Greet someone by name",
+      "version": "1.0.0",
+      "spec_url": "http://localhost:8080/specs/greeting.yaml",
+      "spec_hash": "sha256:abc123def456ghi789jkl012mno345pqr678stu901vwx234yzab567cde890fgh",
+      "x-mcp-tool": {
+        "server_url": "http://localhost:3001",
+        "capabilities": ["greeting", "social"],
+        "examples": [
+          {
+            "description": "Greet Alice",
+            "input": {"name": "Alice"},
+            "output": {"message": "Hello, Alice!", "timestamp": "2024-01-20T10:00:00Z"}
+          },
+          {
+            "description": "Greet with custom message",
+            "input": {"name": "Bob", "greeting": "Good morning"},
+            "output": {"message": "Good morning, Bob!", "timestamp": "2024-01-20T10:00:00Z"}
+          }
+        ]
+      }
+    },
+    {
+      "name": "calculate",
+      "description": "Perform basic mathematical calculations",
+      "version": "1.0.0",
+      "spec_url": "http://localhost:8080/specs/calculator.yaml",
+      "spec_hash": "sha256:def456ghi789jkl012mno345pqr678stu901vwx234yzab567cde890fgh123abc",
+      "x-mcp-tool": {
+        "server_url": "http://localhost:3001",
+        "capabilities": ["math", "calculation"],
+        "examples": [
+          {
+            "description": "Add two numbers",
+            "input": {"operation": "add", "a": 5, "b": 3},
+            "output": {"result": 8, "operation": "5 + 3 = 8"}
+          },
+          {
+            "description": "Multiply numbers",
+            "input": {"operation": "multiply", "a": 4, "b": 7},
+            "output": {"result": 28, "operation": "4 × 7 = 28"}
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -78,7 +78,6 @@ Thumbs.db
 *.log
 *.sqlite
 *.db
-.well-known/
 node_modules/
 .npm/
 
@@ -92,29 +91,34 @@ docker-compose.override.yml
 temp/
 tmp/
 
-# Keys and certificates (security)
+# Keys and certificates (security) - but allow test fixtures
 *.pem
 *.key
 *.crt
 *.p12
 *.pfx
+# Allow test fixtures
+!tests/fixtures/keys/*.pem
+!tests/fixtures/keys/*.key
 
 # Environment variables
 .env.local
 .env.production
 .env.development
 
-# Claude Flow coordination files (development only)
+# Claude Flow coordination files (development only) - but keep essential demo files
 .claude/
 .roo/
 .roomodes
 90%
-claude-flow*
-coordination/
-memory/
+# Keep demo assets but exclude dynamic coordination files
+coordination/memory_bank/
+coordination/orchestration/session_*
+coordination/subtasks/agent_*
+memory/sessions/
+memory/claude-flow-data.json
 archive/
 .mcp.json
 claude.metadata
 .hive-mind/
 .swarm/
-claude.md

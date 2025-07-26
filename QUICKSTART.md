@@ -1,281 +1,328 @@
-# 🚀 EAT Framework - 5-Minute Quickstart
+# Build EAT Support in 10 Minutes
 
-Get the EAT Framework running in under 5 minutes with this step-by-step guide.
+Get your AI agent discovering and using tools in under 10 minutes with this quickstart guide.
 
-## Prerequisites
+## For Tool Publishers (5 minutes)
 
-Before you begin, ensure you have:
+### 1. Copy this OpenAPI template (30 seconds)
 
-- **Docker & Docker Compose** - [Install Docker](https://docs.docker.com/get-docker/)
-- **Python 3.8+** - [Install Python](https://www.python.org/downloads/)
-- **Git** - [Install Git](https://git-scm.com/downloads)
-
-## Step 1: Get the Code
-
-```bash
-# Clone the repository
-git clone <repository-url>
-cd eat-framework
-```
-
-## Step 2: Start the Demo Environment
-
-The demo includes everything you need: 3 MCP servers, an interactive catalog browser, and example agents.
-
-```bash
-# Navigate to demo directory
-cd demo
-
-# Start all services (this may take 2-3 minutes on first run)
-./quickstart.sh
-```
-
-You should see output like:
-```
-🚀 Starting EAT Framework Demo...
-=================================
-🔍 Checking dependencies...
-✅ Dependencies check passed
-🏗️  Building and starting services...
-⏳ Waiting for services to start...
-🔍 Running health checks...
-✅ Catalog server is running
-✅ MCP server on port 3001 is running
-✅ MCP server on port 3002 is running
-✅ MCP server on port 3003 is running
-🎉 EAT Framework Demo is ready!
-```
-
-## Step 3: Explore the Interactive Catalog
-
-Open your browser and visit: **http://localhost:8000**
-
-You'll see the interactive catalog browser with:
-- **Available tools** from all MCP servers
-- **Capability filtering** (customer, analytics, notifications)
-- **Live examples** with actual parameter schemas
-- **Agent code generation** - download ready-to-run Python code
-
-Try these features:
-1. **Browse Tools**: Explore the customer, analytics, and notification tools
-2. **Filter by Capability**: Use the dropdown to filter tools
-3. **Search**: Try searching for "customer" or "report"
-4. **Generate Agent Code**: Click "Generate Agent Code" on any tool
-
-## Step 4: Run Your First Agent
-
-The demo includes two example agents you can run immediately:
-
-### Simple Agent (Basic Discovery)
-
-```bash
-# From the demo directory
-cd agents
-python3 simple_agent.py
-```
-
-Expected output:
-```
-🚀 Starting Simple EAT Agent Demo
-========================================
-🔍 Discovering tools from catalog...
-✅ Found 9 tools in catalog
-🔧 Using tool: get_customer
-📝 Description: Retrieve customer information by ID
-📞 Calling tool with sample data...
-✅ Tool call successful!
-📊 Result: {'id': 1, 'name': 'John Smith', 'email': 'john.smith@example.com'}
-```
-
-### Multi-Tool Agent (Advanced Workflow)
-
-```bash
-# Advanced agent that chains multiple tools together
-python3 multi_tool_agent.py
-```
-
-This agent demonstrates:
-- **Sequential tool calls** (get customers → analyze → report → notify)
-- **Error handling** and graceful fallbacks
-- **Data flow** between different MCP servers
-- **Real-world workflow** patterns
-
-## Step 5: Install the Python Package
-
-```bash
-# Go back to the root directory
-cd ..
-
-# Install the EAT Framework package
-pip install -e .
-```
-
-Now you can use EAT Framework in any Python project:
-
-```python
-import asyncio
-from eat import Catalog
-
-async def main():
-    # Discover tools
-    catalog = Catalog("http://localhost:8000/.well-known/api-catalog")
-    await catalog.fetch()
-    
-    # Find customer tools
-    customer_tools = catalog.find(capability="customer")
-    print(f"Found {len(customer_tools)} customer tools")
-    
-    # Use a tool
-    if customer_tools:
-        tool = customer_tools[0]
-        try:
-            result = await tool.call(customer_id=1)
-            print(f"Customer: {result.get('name', 'Unknown')}")
-        except Exception as e:
-            print(f"Tool call failed: {e}")
-
-if __name__ == "__main__":
-    asyncio.run(main())
-```
-
-## Step 6: Create Your Own Catalog
-
-### 1. Create OpenAPI Specifications
-
-Create a `specs/` directory with OpenAPI files that include `x-mcp-tool` extensions:
+Save as `api-spec.yaml`:
 
 ```yaml
-# specs/my-api.yaml
 openapi: 3.0.0
 info:
   title: My API
   version: 1.0.0
-servers:
-  - url: http://localhost:3000
 paths:
-  /tasks:
+  /hello/{name}:
     get:
-      operationId: list_tasks
-      summary: List all tasks
-      description: Retrieve a list of all tasks
+      operationId: say_hello
       x-mcp-tool:
-        server_url: http://localhost:3000
-        capabilities: ["task-management"]
+        server_url: http://localhost:3001
+        capabilities: ["greeting"]
         examples:
-          - description: "List all tasks"
-            input: {}
-            output:
-              tasks: [{"id": 1, "title": "Sample task"}]
+          - description: "Say hello to Alice"
+            input: {"name": "Alice"}
+            output: {"message": "Hello, Alice!"}
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
         '200':
-          description: List of tasks
+          description: Greeting message
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
 ```
 
-### 2. Generate a Catalog
+### 2. Create and serve catalog (2 minutes)
 
+Save as `catalog.json`:
+
+```json
+{
+  "version": "1.0",
+  "metadata": {
+    "title": "My First EAT Catalog",
+    "generated_at": "2024-01-20T10:00:00Z"
+  },
+  "tools": [
+    {
+      "name": "say_hello",
+      "description": "Greet someone by name",
+      "spec_url": "http://localhost:8080/api-spec.yaml",
+      "x-mcp-tool": {
+        "server_url": "http://localhost:3001",
+        "capabilities": ["greeting"]
+      }
+    }
+  ]
+}
+```
+
+Serve with Python:
 ```bash
-# Use the CLI tool to generate a catalog
-eat-gen specs/ --output my-catalog.json
+# Serve catalog and spec
+python3 -m http.server 8080 &
 
-# Or serve it for development
-eat-serve specs/ --port 9000
+# The catalog is now available at:
+# http://localhost:8080/catalog.json
 ```
 
-### 3. Create Your Agent
+### 3. Run a minimal MCP server (2 minutes)
+
+Save as `mcp-server.py`:
 
 ```python
-# my_agent.py
-import asyncio
-from eat import Catalog
+from http.server import HTTPServer, BaseHTTPRequestHandler
+import json
 
-async def main():
-    catalog = Catalog("http://localhost:9000/.well-known/api-catalog")
-    await catalog.fetch()
-    
-    # Use your custom tools
-    task_tools = catalog.find(capability="task-management")
-    if task_tools:
-        tasks = await task_tools[0].call()
-        print(f"Found {len(tasks.get('tasks', []))} tasks")
+class MCPHandler(BaseHTTPRequestHandler):
+    def do_POST(self):
+        content_length = int(self.headers['Content-Length'])
+        request = json.loads(self.rfile.read(content_length))
+        
+        response = {
+            "jsonrpc": "2.0",
+            "id": request["id"]
+        }
+        
+        if request["method"] == "tools/list":
+            response["result"] = {
+                "tools": [{
+                    "name": "say_hello",
+                    "description": "Greet someone by name",
+                    "inputSchema": {
+                        "type": "object",
+                        "properties": {
+                            "name": {"type": "string"}
+                        },
+                        "required": ["name"]
+                    }
+                }]
+            }
+        elif request["method"] == "tools/call":
+            name = request["params"]["arguments"]["name"]
+            response["result"] = {
+                "output": {"message": f"Hello, {name}!"}
+            }
+        
+        self.send_response(200)
+        self.send_header('Content-Type', 'application/json')
+        self.end_headers()
+        self.wfile.write(json.dumps(response).encode())
 
-asyncio.run(main())
+HTTPServer(('localhost', 3001), MCPHandler).serve_forever()
 ```
 
-## 🎯 What You've Accomplished
-
-In just 5 minutes, you've:
-
-✅ **Set up a complete EAT environment** with 3 MCP servers  
-✅ **Explored the interactive catalog browser** with live tools  
-✅ **Run example agents** that discover and use tools automatically  
-✅ **Installed the Python package** for your own projects  
-✅ **Created your first custom catalog** with OpenAPI specs  
-
-## 🚀 Next Steps
-
-Now that you have EAT Framework running, explore these advanced features:
-
-### Security & Production
-- **[Security Guide](docs/security.md)** - Set up JWS signing and verification
-- **[Deployment Guide](docs/deployment.md)** - Deploy to production environments
-- **[Authentication](docs/authentication.md)** - Secure your MCP servers
-
-### Development
-- **[API Reference](docs/api_reference.md)** - Complete Python API documentation
-- **[Tutorial](docs/tutorial.md)** - Build more complex agents and workflows
-- **[MCP Server Guide](docs/mcp_servers.md)** - Create your own MCP servers
-
-### Integration
-- **[GitHub Actions](docs/github_actions.md)** - Automate catalog generation
-- **[CI/CD Integration](docs/cicd.md)** - Include EAT in your deployment pipeline
-- **[Monitoring](docs/monitoring.md)** - Monitor catalog usage and performance
-
-## 🆘 Troubleshooting
-
-### Demo Won't Start
+Run it:
 ```bash
-# Check Docker is running
-docker --version
-docker-compose --version
-
-# Check ports aren't in use
-lsof -i :8000 -i :3001 -i :3002 -i :3003
-
-# Restart the demo
-docker-compose down
-./quickstart.sh
+python3 mcp-server.py
 ```
 
-### Tools Not Working
+### 4. Test your setup (30 seconds)
+
 ```bash
-# Check MCP server logs
-docker-compose logs customer-server
-docker-compose logs analytics-server
-docker-compose logs notifications-server
+# Your catalog should be accessible:
+curl http://localhost:8080/catalog.json
 
-# Test catalog directly
-curl http://localhost:8000/.well-known/api-catalog
+# Your MCP server should respond:
+curl -X POST http://localhost:3001 \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","id":"1","method":"tools/list"}'
 ```
 
-### Python Import Errors
-```bash
-# Reinstall in development mode
-pip uninstall eat-framework
-pip install -e .
-
-# Check Python path
-python3 -c "import eat; print(eat.__file__)"
-```
-
-## 💬 Get Help
-
-- **Documentation**: [docs/](docs/) directory
-- **Issues**: [GitHub Issues](https://github.com/eat-framework/eat-framework/issues)
-- **Examples**: [examples/](examples/) directory
-- **Tests**: Run `pytest tests/` to see more usage patterns
+**Done!** Your tool is now discoverable by any EAT-compatible agent.
 
 ---
 
-**🎉 Congratulations!** You now have a working EAT Framework installation. 
+## For Agent Developers (5 minutes)
 
-Ready to build AI agents that can discover and use tools autonomously? Check out the [Tutorial](docs/tutorial.md) for your next project!
+### 1. Discover tools (2 minutes)
+
+Using curl:
+```bash
+# Discover available tools
+CATALOG=$(curl -s http://localhost:8080/catalog.json)
+echo "$CATALOG" | jq '.tools'
+
+# Extract MCP server URL
+SERVER_URL=$(echo "$CATALOG" | jq -r '.tools[0]["x-mcp-tool"].server_url')
+```
+
+### 2. List available tools (1 minute)
+
+```bash
+# Ask MCP server what tools it has
+curl -X POST "$SERVER_URL" \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","id":"1","method":"tools/list"}' | jq
+```
+
+### 3. Call a tool (2 minutes)
+
+```bash
+# Execute the say_hello tool
+curl -X POST "$SERVER_URL" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "jsonrpc": "2.0",
+    "id": "2",
+    "method": "tools/call",
+    "params": {
+      "name": "say_hello",
+      "arguments": {"name": "World"}
+    }
+  }' | jq
+```
+
+Expected output:
+```json
+{
+  "jsonrpc": "2.0",
+  "id": "2",
+  "result": {
+    "output": {
+      "message": "Hello, World!"
+    }
+  }
+}
+```
+
+---
+
+## Minimal Implementation (50 lines)
+
+Here's a complete EAT client in 50 lines of Python:
+
+```python
+#!/usr/bin/env python3
+import requests
+import json
+
+class EATClient:
+    def __init__(self, catalog_url):
+        self.catalog_url = catalog_url
+        self.tools = {}
+        self._discover()
+    
+    def _discover(self):
+        """Fetch and parse the tool catalog"""
+        resp = requests.get(self.catalog_url)
+        catalog = resp.json()
+        
+        for tool in catalog['tools']:
+            self.tools[tool['name']] = {
+                'server_url': tool['x-mcp-tool']['server_url'],
+                'capabilities': tool['x-mcp-tool'].get('capabilities', [])
+            }
+    
+    def find_tools(self, capability):
+        """Find tools by capability"""
+        return [name for name, info in self.tools.items() 
+                if capability in info['capabilities']]
+    
+    def call_tool(self, tool_name, **arguments):
+        """Execute a tool via MCP"""
+        if tool_name not in self.tools:
+            raise ValueError(f"Unknown tool: {tool_name}")
+        
+        server_url = self.tools[tool_name]['server_url']
+        
+        request = {
+            "jsonrpc": "2.0",
+            "id": "1",
+            "method": "tools/call",
+            "params": {
+                "name": tool_name,
+                "arguments": arguments
+            }
+        }
+        
+        resp = requests.post(server_url, json=request)
+        result = resp.json()
+        
+        if 'error' in result:
+            raise Exception(result['error']['message'])
+        
+        return result['result']['output']
+
+# Usage example:
+if __name__ == "__main__":
+    client = EATClient("http://localhost:8080/catalog.json")
+    result = client.call_tool("say_hello", name="EAT Framework")
+    print(result['message'])  # "Hello, EAT Framework!"
+```
+
+---
+
+## Next Steps
+
+### Make it production-ready:
+
+1. **Add error handling**
+   ```python
+   try:
+       result = client.call_tool("tool_name", param="value")
+   except requests.exceptions.RequestException as e:
+       print(f"Network error: {e}")
+   except KeyError as e:
+       print(f"Invalid response format: {e}")
+   ```
+
+2. **Add caching**
+   ```python
+   # Cache catalogs for 5 minutes
+   if cached_catalog and time.time() - cache_time < 300:
+       return cached_catalog
+   ```
+
+3. **Add authentication**
+   ```python
+   headers = {"Authorization": f"Bearer {api_token}"}
+   requests.get(catalog_url, headers=headers)
+   ```
+
+4. **Add signature verification**
+   ```python
+   # Check X-JWS-Signature header
+   signature = response.headers.get('X-JWS-Signature')
+   if signature:
+       verify_jws(signature, response.content)
+   ```
+
+### Learn more:
+
+- Read the full [PROTOCOL.md](PROTOCOL.md) for complete specification
+- See [IMPLEMENTATION.md](IMPLEMENTATION.md) for detailed implementation guide
+- Check [examples/](examples/) for more complex scenarios
+
+---
+
+## Troubleshooting
+
+**Catalog not found?**
+- Ensure server is running on correct port
+- Check firewall settings
+- Verify URL ends with exact path
+
+**MCP server errors?**
+- Check JSON-RPC request format
+- Verify tool name matches exactly
+- Ensure all required parameters are provided
+
+**Tool execution fails?**
+- Validate arguments match schema
+- Check MCP server logs
+- Test with tools/list first
+
+---
+
+**Congratulations!** You've implemented EAT support in under 10 minutes. Your AI agent can now discover and use tools from any EAT-compatible catalog.

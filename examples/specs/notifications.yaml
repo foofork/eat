@@ -1,0 +1,293 @@
+openapi: 3.0.0
+info:
+  title: Notifications API
+  version: 1.0.0
+  description: API for sending notifications with MCP tool integration
+servers:
+  - url: http://localhost:3003
+paths:
+  /notifications/send:
+    post:
+      operationId: send_notification
+      summary: Send a notification
+      x-mcp-tool:
+        server_url: http://localhost:3003
+        capabilities:
+          - notifications
+          - messaging
+          - write-operations
+        examples:
+          - description: Send email notification
+            input:
+              type: email
+              recipient: user@example.com
+              subject: "Welcome to our service"
+              body: "Thank you for signing up!"
+              priority: normal
+            output:
+              notification_id: ntf_123456
+              status: sent
+              sent_at: "2024-01-20T10:45:00Z"
+          - description: Send SMS notification
+            input:
+              type: sms
+              recipient: "+1234567890"
+              body: "Your verification code is 123456"
+              priority: high
+            output:
+              notification_id: ntf_789012
+              status: sent
+              sent_at: "2024-01-20T10:46:00Z"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - type
+                - recipient
+                - body
+              properties:
+                type:
+                  type: string
+                  enum: [email, sms, push, webhook]
+                recipient:
+                  type: string
+                  description: Email, phone number, device token, or webhook URL
+                subject:
+                  type: string
+                  description: Required for email notifications
+                body:
+                  type: string
+                priority:
+                  type: string
+                  enum: [low, normal, high, urgent]
+                  default: normal
+                metadata:
+                  type: object
+                  additionalProperties: true
+                schedule_at:
+                  type: string
+                  format: date-time
+                  description: Schedule notification for future delivery
+      responses:
+        '200':
+          description: Notification sent
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  notification_id:
+                    type: string
+                  status:
+                    type: string
+                    enum: [sent, scheduled, failed]
+                  sent_at:
+                    type: string
+                    format: date-time
+                  error:
+                    type: string
+  /notifications/batch:
+    post:
+      operationId: send_batch_notifications
+      summary: Send notifications to multiple recipients
+      x-mcp-tool:
+        server_url: http://localhost:3003
+        capabilities:
+          - notifications
+          - messaging
+          - batch-operations
+          - write-operations
+        examples:
+          - description: Send welcome emails to multiple users
+            input:
+              type: email
+              template: welcome_email
+              recipients:
+                - email: user1@example.com
+                  data:
+                    name: Alice
+                - email: user2@example.com
+                  data:
+                    name: Bob
+            output:
+              batch_id: btc_345678
+              total: 2
+              sent: 2
+              failed: 0
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - type
+                - recipients
+              properties:
+                type:
+                  type: string
+                  enum: [email, sms, push]
+                template:
+                  type: string
+                  description: Template ID for consistent messaging
+                recipients:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      email:
+                        type: string
+                        format: email
+                      phone:
+                        type: string
+                      device_token:
+                        type: string
+                      data:
+                        type: object
+                        additionalProperties: true
+                priority:
+                  type: string
+                  enum: [low, normal, high, urgent]
+                  default: normal
+      responses:
+        '200':
+          description: Batch processed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  batch_id:
+                    type: string
+                  total:
+                    type: integer
+                  sent:
+                    type: integer
+                  failed:
+                    type: integer
+                  failures:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        recipient:
+                          type: string
+                        error:
+                          type: string
+  /notifications/{notification_id}/status:
+    get:
+      operationId: get_notification_status
+      summary: Get notification delivery status
+      x-mcp-tool:
+        server_url: http://localhost:3003
+        capabilities:
+          - notifications
+          - status-tracking
+          - read-only
+        examples:
+          - description: Check notification status
+            input:
+              notification_id: ntf_123456
+            output:
+              notification_id: ntf_123456
+              status: delivered
+              sent_at: "2024-01-20T10:45:00Z"
+              delivered_at: "2024-01-20T10:45:03Z"
+              events:
+                - timestamp: "2024-01-20T10:45:00Z"
+                  event: sent
+                - timestamp: "2024-01-20T10:45:03Z"
+                  event: delivered
+      parameters:
+        - name: notification_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Notification status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  notification_id:
+                    type: string
+                  status:
+                    type: string
+                    enum: [pending, sent, delivered, failed, bounced]
+                  sent_at:
+                    type: string
+                    format: date-time
+                  delivered_at:
+                    type: string
+                    format: date-time
+                  failed_at:
+                    type: string
+                    format: date-time
+                  events:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        timestamp:
+                          type: string
+                          format: date-time
+                        event:
+                          type: string
+                        details:
+                          type: string
+  /notifications/templates:
+    get:
+      operationId: list_templates
+      summary: List notification templates
+      x-mcp-tool:
+        server_url: http://localhost:3003
+        capabilities:
+          - notifications
+          - templates
+          - read-only
+        examples:
+          - description: List all templates
+            input: {}
+            output:
+              templates:
+                - id: welcome_email
+                  name: Welcome Email
+                  type: email
+                  variables: ["name", "activation_link"]
+                - id: password_reset
+                  name: Password Reset
+                  type: email
+                  variables: ["name", "reset_link", "expires_in"]
+      responses:
+        '200':
+          description: List of templates
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  templates:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        name:
+                          type: string
+                        type:
+                          type: string
+                          enum: [email, sms, push]
+                        variables:
+                          type: array
+                          items:
+                            type: string
+                        created_at:
+                          type: string
+                          format: date-time

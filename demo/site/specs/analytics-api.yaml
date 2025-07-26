@@ -1,0 +1,272 @@
+openapi: 3.0.0
+info:
+  title: Analytics and Reporting API
+  version: 1.0.0
+  description: Business analytics and reporting with MCP tool integration
+servers:
+  - url: http://localhost:3002
+paths:
+  /analytics/dashboard:
+    get:
+      operationId: get_dashboard_metrics
+      summary: Get key dashboard metrics
+      x-mcp-tool:
+        server_url: http://localhost:3002
+        capabilities:
+          - analytics
+          - reporting
+          - dashboard
+        examples:
+          - description: Get current dashboard metrics
+            input:
+              timeframe: "7d"
+            output:
+              period: "7d"
+              customers:
+                total: 25
+                new: 3
+                growth_rate: 13.6
+              revenue:
+                total: 125000.00
+                period: 18500.00
+                growth_rate: 15.2
+              engagement:
+                active_customers: 18
+                avg_session_duration: 24.5
+                top_features: ["reporting", "customer_management"]
+      parameters:
+        - name: timeframe
+          in: query
+          schema:
+            type: string
+            enum: ["24h", "7d", "30d", "90d"]
+            default: "7d"
+      responses:
+        '200':
+          description: Dashboard metrics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  period:
+                    type: string
+                  customers:
+                    type: object
+                    properties:
+                      total:
+                        type: integer
+                      new:
+                        type: integer
+                      growth_rate:
+                        type: number
+                  revenue:
+                    type: object
+                    properties:
+                      total:
+                        type: number
+                      period:
+                        type: number
+                      growth_rate:
+                        type: number
+                  engagement:
+                    type: object
+                    properties:
+                      active_customers:
+                        type: integer
+                      avg_session_duration:
+                        type: number
+                      top_features:
+                        type: array
+                        items:
+                          type: string
+  /analytics/reports:
+    post:
+      operationId: generate_analytics_report
+      summary: Generate a custom analytics report
+      x-mcp-tool:
+        server_url: http://localhost:3002
+        capabilities:
+          - analytics
+          - reporting
+          - data-export
+        examples:
+          - description: Generate customer activity report
+            input:
+              report_type: "customer_activity"
+              start_date: "2024-01-01"
+              end_date: "2024-01-31"
+              format: "json"
+              include_charts: true
+            output:
+              report_id: "rpt_ca_20240120_001"
+              status: "completed"
+              download_url: "http://localhost:3002/reports/rpt_ca_20240120_001.json"
+              generated_at: "2024-01-20T10:45:00Z"
+              expires_at: "2024-01-27T10:45:00Z"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - report_type
+                - start_date
+                - end_date
+              properties:
+                report_type:
+                  type: string
+                  enum: ["customer_activity", "revenue_analysis", "feature_usage", "growth_metrics"]
+                start_date:
+                  type: string
+                  format: date
+                end_date:
+                  type: string
+                  format: date
+                format:
+                  type: string
+                  enum: ["json", "csv", "xlsx"]
+                  default: "json"
+                include_charts:
+                  type: boolean
+                  default: false
+                filters:
+                  type: object
+                  additionalProperties: true
+      responses:
+        '200':
+          description: Report generated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  report_id:
+                    type: string
+                  status:
+                    type: string
+                    enum: ["completed", "processing", "failed"]
+                  download_url:
+                    type: string
+                    format: uri
+                  generated_at:
+                    type: string
+                    format: date-time
+                  expires_at:
+                    type: string
+                    format: date-time
+  /analytics/reports/{report_id}:
+    get:
+      operationId: get_report_status
+      summary: Get report generation status
+      x-mcp-tool:
+        server_url: http://localhost:3002
+        capabilities:
+          - analytics
+          - reporting
+          - status-tracking
+        examples:
+          - description: Check report status
+            input:
+              report_id: "rpt_ca_20240120_001"
+            output:
+              report_id: "rpt_ca_20240120_001"
+              status: "completed"
+              download_url: "http://localhost:3002/reports/rpt_ca_20240120_001.json"
+              file_size: 2048576
+              generated_at: "2024-01-20T10:45:00Z"
+              expires_at: "2024-01-27T10:45:00Z"
+      parameters:
+        - name: report_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Report status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  report_id:
+                    type: string
+                  status:
+                    type: string
+                    enum: ["completed", "processing", "failed"]
+                  download_url:
+                    type: string
+                    format: uri
+                  file_size:
+                    type: integer
+                  generated_at:
+                    type: string
+                    format: date-time
+                  expires_at:
+                    type: string
+                    format: date-time
+                  error:
+                    type: string
+        '404':
+          description: Report not found
+  /analytics/metrics/track:
+    post:
+      operationId: track_custom_metric
+      summary: Track a custom business metric
+      x-mcp-tool:
+        server_url: http://localhost:3002
+        capabilities:
+          - analytics
+          - metrics
+          - tracking
+        examples:
+          - description: Track feature usage
+            input:
+              metric_name: "feature_usage"
+              value: 1
+              metadata:
+                feature: "customer_export"
+                user_id: "usr_123"
+                session_id: "sess_456"
+                duration_ms: 2500
+            output:
+              success: true
+              metric_id: "met_fu_20240120_789"
+              tracked_at: "2024-01-20T10:30:00Z"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - metric_name
+                - value
+              properties:
+                metric_name:
+                  type: string
+                value:
+                  type: number
+                metadata:
+                  type: object
+                  additionalProperties: true
+                timestamp:
+                  type: string
+                  format: date-time
+      responses:
+        '200':
+          description: Metric tracked
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  metric_id:
+                    type: string
+                  tracked_at:
+                    type: string
+                    format: date-time

@@ -1,0 +1,254 @@
+openapi: 3.0.0
+info:
+  title: Customer Management API
+  version: 1.0.0
+  description: Customer data management with MCP tool integration
+servers:
+  - url: http://localhost:3001
+paths:
+  /customers:
+    get:
+      operationId: list_customers
+      summary: List all customers
+      description: Retrieve a paginated list of customers
+      x-mcp-tool:
+        server_url: http://localhost:3001
+        capabilities:
+          - customer-management
+          - read-operations
+        examples:
+          - description: List first 5 customers
+            input: 
+              limit: 5
+            output:
+              customers:
+                - id: 1
+                  name: John Smith
+                  email: john.smith@example.com
+                  created_at: "2024-01-15T10:00:00Z"
+                - id: 2
+                  name: Jane Doe
+                  email: jane.doe@example.com
+                  created_at: "2024-01-16T11:30:00Z"
+              total: 25
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+            minimum: 1
+            maximum: 100
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+      responses:
+        '200':
+          description: List of customers
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  customers:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Customer'
+                  total:
+                    type: integer
+    post:
+      operationId: create_customer
+      summary: Create a new customer
+      x-mcp-tool:
+        server_url: http://localhost:3001
+        capabilities:
+          - customer-management
+          - write-operations
+        examples:
+          - description: Create a new customer
+            input:
+              name: Alice Johnson
+              email: alice@example.com
+              phone: "+1-555-0123"
+            output:
+              id: 26
+              name: Alice Johnson
+              email: alice@example.com
+              phone: "+1-555-0123"
+              created_at: "2024-01-20T10:30:00Z"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - email
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                phone:
+                  type: string
+                address:
+                  type: string
+      responses:
+        '201':
+          description: Customer created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+  /customers/{id}:
+    get:
+      operationId: get_customer
+      summary: Get customer by ID
+      x-mcp-tool:
+        server_url: http://localhost:3001
+        capabilities:
+          - customer-management
+          - read-operations
+        examples:
+          - description: Get customer details
+            input:
+              customer_id: 1
+            output:
+              id: 1
+              name: John Smith
+              email: john.smith@example.com
+              phone: "+1-555-0001"
+              address: "123 Main St, Anytown, ST 12345"
+              created_at: "2024-01-15T10:00:00Z"
+              updated_at: "2024-01-15T10:00:00Z"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Customer found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+        '404':
+          description: Customer not found
+    put:
+      operationId: update_customer
+      summary: Update customer
+      x-mcp-tool:
+        server_url: http://localhost:3001
+        capabilities:
+          - customer-management
+          - write-operations
+        examples:
+          - description: Update customer information
+            input:
+              customer_id: 1
+              phone: "+1-555-9999"
+              address: "456 Oak Ave, Newtown, ST 54321"
+            output:
+              id: 1
+              name: John Smith
+              email: john.smith@example.com
+              phone: "+1-555-9999"
+              address: "456 Oak Ave, Newtown, ST 54321"
+              updated_at: "2024-01-20T11:15:00Z"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                phone:
+                  type: string
+                address:
+                  type: string
+      responses:
+        '200':
+          description: Customer updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+        '404':
+          description: Customer not found
+    delete:
+      operationId: delete_customer
+      summary: Delete customer
+      x-mcp-tool:
+        server_url: http://localhost:3001
+        capabilities:
+          - customer-management
+          - write-operations
+        examples:
+          - description: Delete a customer
+            input:
+              customer_id: 1
+            output:
+              message: Customer 1 deleted successfully
+              deleted_at: "2024-01-20T12:00:00Z"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Customer deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  deleted_at:
+                    type: string
+                    format: date-time
+        '404':
+          description: Customer not found
+
+components:
+  schemas:
+    Customer:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        address:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time

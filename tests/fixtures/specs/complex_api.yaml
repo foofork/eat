@@ -1,0 +1,349 @@
+openapi: 3.0.0
+info:
+  title: Complex Test API
+  version: 2.1.0
+  description: Comprehensive test API demonstrating all EAT features
+  contact:
+    name: EAT Test Suite
+    email: test@example.com
+servers:
+  - url: http://localhost:3001
+    description: Development server
+  - url: https://api.example.com
+    description: Production server
+paths:
+  /users:
+    get:
+      operationId: list_users
+      summary: List all users
+      description: Retrieve a paginated list of users with filtering
+      x-mcp-tool:
+        server_url: http://localhost:3001
+        capabilities: ["user-management", "read-operations", "pagination"]
+        examples:
+          - description: List first 10 users
+            input:
+              limit: 10
+              offset: 0
+            output:
+              users:
+                - id: 1
+                  name: "John Doe"
+                  email: "john@example.com"
+                  role: "admin"
+                - id: 2
+                  name: "Jane Smith"
+                  email: "jane@example.com"
+                  role: "user"
+              total: 150
+              has_more: true
+          - description: Filter by role
+            input:
+              limit: 5
+              role: "admin"
+            output:
+              users:
+                - id: 1
+                  name: "John Doe"
+                  email: "john@example.com"
+                  role: "admin"
+              total: 3
+              has_more: false
+      parameters:
+        - name: limit
+          in: query
+          description: Number of users to return
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+        - name: offset
+          in: query
+          description: Number of users to skip
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: role
+          in: query
+          description: Filter by user role
+          schema:
+            type: string
+            enum: ["admin", "user", "guest"]
+        - name: search
+          in: query
+          description: Search users by name or email
+          schema:
+            type: string
+            minLength: 2
+      responses:
+        '200':
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  users:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/User'
+                  total:
+                    type: integer
+                  has_more:
+                    type: boolean
+        '400':
+          description: Invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      operationId: create_user
+      summary: Create a new user
+      description: Create a new user account with validation
+      x-mcp-tool:
+        server_url: http://localhost:3001
+        capabilities: ["user-management", "write-operations", "validation"]
+        examples:
+          - description: Create admin user
+            input:
+              name: "Alice Admin"
+              email: "alice@example.com"
+              role: "admin"
+              metadata:
+                department: "IT"
+                hire_date: "2024-01-15"
+            output:
+              id: 151
+              name: "Alice Admin"
+              email: "alice@example.com"
+              role: "admin"
+              status: "active"
+              created_at: "2024-01-20T10:30:00Z"
+              metadata:
+                department: "IT"
+                hire_date: "2024-01-15"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, email]
+              properties:
+                name:
+                  type: string
+                  minLength: 2
+                  maxLength: 100
+                email:
+                  type: string
+                  format: email
+                role:
+                  type: string
+                  enum: ["admin", "user", "guest"]
+                  default: "user"
+                metadata:
+                  type: object
+                  additionalProperties: true
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Email already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /users/{id}:
+    get:
+      operationId: get_user
+      summary: Get user by ID
+      description: Retrieve detailed user information
+      x-mcp-tool:
+        server_url: http://localhost:3001
+        capabilities: ["user-management", "read-operations"]
+        examples:
+          - description: Get user details
+            input:
+              id: 1
+            output:
+              id: 1
+              name: "John Doe"
+              email: "john@example.com"
+              role: "admin"
+              status: "active"
+              created_at: "2024-01-01T09:00:00Z"
+              updated_at: "2024-01-15T14:30:00Z"
+              last_login: "2024-01-20T08:15:00Z"
+              metadata:
+                department: "Engineering"
+                manager_id: null
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: User ID
+          schema:
+            type: integer
+            minimum: 1
+        - name: include
+          in: query
+          description: Additional data to include
+          schema:
+            type: array
+            items:
+              type: string
+              enum: ["permissions", "activity", "metadata"]
+      responses:
+        '200':
+          description: User details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /analytics/reports:
+    post:
+      operationId: generate_report
+      summary: Generate analytics report
+      description: Create custom analytics reports with various formats
+      x-mcp-tool:
+        server_url: http://localhost:3002
+        capabilities: ["analytics", "reporting", "data-export"]
+        examples:
+          - description: Generate user activity report
+            input:
+              type: "user_activity"
+              start_date: "2024-01-01"
+              end_date: "2024-01-31"
+              format: "json"
+              filters:
+                role: "admin"
+                active_only: true
+            output:
+              report_id: "rpt_ua_20240120_001"
+              status: "processing"
+              estimated_completion: "2024-01-20T10:35:00Z"
+              download_url: null
+              format: "json"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [type, start_date, end_date]
+              properties:
+                type:
+                  type: string
+                  enum: ["user_activity", "system_usage", "error_analysis"]
+                start_date:
+                  type: string
+                  format: date
+                end_date:
+                  type: string
+                  format: date
+                format:
+                  type: string
+                  enum: ["json", "csv", "xlsx", "pdf"]
+                  default: "json"
+                filters:
+                  type: object
+                  additionalProperties: true
+                email_when_complete:
+                  type: string
+                  format: email
+      responses:
+        '202':
+          description: Report generation started
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  report_id:
+                    type: string
+                  status:
+                    type: string
+                    enum: ["processing", "queued"]
+                  estimated_completion:
+                    type: string
+                    format: date-time
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        role:
+          type: string
+          enum: ["admin", "user", "guest"]
+        status:
+          type: string
+          enum: ["active", "inactive", "suspended"]
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        last_login:
+          type: string
+          format: date-time
+          readOnly: true
+        metadata:
+          type: object
+          additionalProperties: true
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        code:
+          type: integer
+        details:
+          type: object
+          additionalProperties: true
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security:
+  - bearerAuth: []

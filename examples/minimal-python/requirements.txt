@@ -1,0 +1,2 @@
+# Minimal requirements for EAT client
+requests>=2.25.0

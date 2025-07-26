@@ -1,0 +1,71 @@
+{
+  "version": "1.0",
+  "metadata": {
+    "title": "Invalid Test Catalog",
+    "description": "Catalog with various validation errors for testing error handling"
+  },
+  "tools": [
+    {
+      "name": "valid_tool",
+      "description": "This tool is valid",
+      "spec_url": "http://localhost:3000/valid.yaml",
+      "x-mcp-tool": {
+        "server_url": "http://localhost:3000",
+        "capabilities": ["testing"]
+      }
+    },
+    {
+      "name": "missing_description_tool",
+      "spec_url": "http://localhost:3000/spec.yaml",
+      "x-mcp-tool": {
+        "server_url": "http://localhost:3000"
+      }
+    },
+    {
+      "name": "missing_spec_url_tool",
+      "description": "Tool missing spec_url",
+      "x-mcp-tool": {
+        "server_url": "http://localhost:3000"
+      }
+    },
+    {
+      "name": "missing_mcp_tool",
+      "description": "Tool missing x-mcp-tool extension",
+      "spec_url": "http://localhost:3000/spec.yaml"
+    },
+    {
+      "name": "invalid tool name!",
+      "description": "Tool with invalid name characters",
+      "spec_url": "http://localhost:3000/spec.yaml",
+      "x-mcp-tool": {
+        "server_url": "http://localhost:3000"
+      }
+    },
+    {
+      "name": "invalid_url_tool",
+      "description": "Tool with malformed URLs",
+      "spec_url": "not-a-valid-url",
+      "x-mcp-tool": {
+        "server_url": "also-not-a-url"
+      }
+    },
+    {
+      "name": "invalid_hash_tool",
+      "description": "Tool with invalid hash format",
+      "spec_url": "http://localhost:3000/spec.yaml",
+      "spec_hash": "invalid-hash-format",
+      "x-mcp-tool": {
+        "server_url": "http://localhost:3000"
+      }
+    },
+    {
+      "name": "missing_server_url_tool",
+      "description": "Tool missing required server_url in x-mcp-tool",
+      "spec_url": "http://localhost:3000/spec.yaml",
+      "x-mcp-tool": {
+        "capabilities": ["testing"],
+        "examples": []
+      }
+    }
+  ]
+}

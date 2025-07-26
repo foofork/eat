@@ -1,0 +1,191 @@
+{
+  "version": "1.0",
+  "metadata": {
+    "title": "Enterprise API Catalog",
+    "description": "Complete enterprise tool catalog with user management, analytics, and notifications",
+    "generated_at": "2024-01-20T10:00:00Z",
+    "generator": "eat-gen/1.0.0",
+    "publisher": "did:web:enterprise.example.com"
+  },
+  "tools": [
+    {
+      "name": "list_users",
+      "description": "Retrieve a paginated list of all users",
+      "version": "1.0.0",
+      "spec_url": "http://localhost:8080/specs/user-management.yaml",
+      "spec_hash": "sha256:1a2b3c4d5e6f7890abcdef1234567890abcdef1234567890abcdef1234567890",
+      "x-mcp-tool": {
+        "server_url": "http://localhost:3001",
+        "capabilities": ["user-management", "read-operations"],
+        "examples": [
+          {
+            "description": "List first page of users",
+            "input": {"limit": 10, "offset": 0},
+            "output": {
+              "users": [
+                {"id": 1, "name": "John Doe", "email": "john@example.com"},
+                {"id": 2, "name": "Jane Smith", "email": "jane@example.com"}
+              ],
+              "total": 42
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "create_user",
+      "description": "Create a new user",
+      "version": "1.0.0",
+      "spec_url": "http://localhost:8080/specs/user-management.yaml",
+      "spec_hash": "sha256:1a2b3c4d5e6f7890abcdef1234567890abcdef1234567890abcdef1234567890",
+      "x-mcp-tool": {
+        "server_url": "http://localhost:3001",
+        "capabilities": ["user-management", "write-operations"],
+        "examples": [
+          {
+            "description": "Create a new developer user",
+            "input": {"name": "Alice Johnson", "email": "alice@example.com", "role": "developer"},
+            "output": {
+              "id": 3,
+              "name": "Alice Johnson",
+              "email": "alice@example.com",
+              "role": "developer",
+              "created_at": "2024-01-20T10:30:00Z"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "get_user",
+      "description": "Get user by ID",
+      "version": "1.0.0",
+      "spec_url": "http://localhost:8080/specs/user-management.yaml",
+      "spec_hash": "sha256:1a2b3c4d5e6f7890abcdef1234567890abcdef1234567890abcdef1234567890",
+      "x-mcp-tool": {
+        "server_url": "http://localhost:3001",
+        "capabilities": ["user-management", "read-operations"],
+        "examples": [
+          {
+            "description": "Get specific user",
+            "input": {"id": 123},
+            "output": {
+              "id": 123,
+              "name": "Bob Wilson",
+              "email": "bob@example.com",
+              "role": "admin",
+              "created_at": "2024-01-15T08:00:00Z"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "get_dashboard_stats",
+      "description": "Get dashboard statistics",
+      "version": "1.0.0",
+      "spec_url": "http://localhost:8080/specs/analytics.yaml",
+      "spec_hash": "sha256:2b3c4d5e6f7890abcdef1234567890abcdef1234567890abcdef1234567890ab",
+      "x-mcp-tool": {
+        "server_url": "http://localhost:3002",
+        "capabilities": ["analytics", "reporting", "read-only"],
+        "examples": [
+          {
+            "description": "Get weekly dashboard stats",
+            "input": {"timeframe": "7d"},
+            "output": {
+              "users": {"total": 1500, "new_this_period": 45, "growth_rate": 3.1},
+              "revenue": {"total": 125000, "this_period": 18500, "growth_rate": 15.2},
+              "engagement": {"daily_active_users": 850, "average_session_time": 12.5}
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "generate_report",
+      "description": "Generate custom report",
+      "version": "1.0.0",
+      "spec_url": "http://localhost:8080/specs/analytics.yaml",
+      "spec_hash": "sha256:2b3c4d5e6f7890abcdef1234567890abcdef1234567890abcdef1234567890ab",
+      "x-mcp-tool": {
+        "server_url": "http://localhost:3002",
+        "capabilities": ["analytics", "reporting", "write-operations"],
+        "examples": [
+          {
+            "description": "Generate user activity report",
+            "input": {
+              "report_type": "user_activity",
+              "start_date": "2024-01-01",
+              "end_date": "2024-01-31",
+              "format": "pdf"
+            },
+            "output": {
+              "report_id": "rpt_123456",
+              "status": "processing",
+              "estimated_completion": "2024-01-20T10:35:00Z"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "send_notification",
+      "description": "Send a notification",
+      "version": "1.0.0",
+      "spec_url": "http://localhost:8080/specs/notifications.yaml",
+      "spec_hash": "sha256:3c4d5e6f7890abcdef1234567890abcdef1234567890abcdef1234567890abcd",
+      "x-mcp-tool": {
+        "server_url": "http://localhost:3003",
+        "capabilities": ["notifications", "messaging", "write-operations"],
+        "examples": [
+          {
+            "description": "Send welcome email",
+            "input": {
+              "type": "email",
+              "recipient": "user@example.com",
+              "subject": "Welcome to our service",
+              "body": "Thank you for signing up!",
+              "priority": "normal"
+            },
+            "output": {
+              "notification_id": "ntf_123456",
+              "status": "sent",
+              "sent_at": "2024-01-20T10:45:00Z"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "send_batch_notifications",
+      "description": "Send notifications to multiple recipients",
+      "version": "1.0.0",
+      "spec_url": "http://localhost:8080/specs/notifications.yaml",
+      "spec_hash": "sha256:3c4d5e6f7890abcdef1234567890abcdef1234567890abcdef1234567890abcd",
+      "x-mcp-tool": {
+        "server_url": "http://localhost:3003",
+        "capabilities": ["notifications", "messaging", "batch-operations", "write-operations"],
+        "examples": [
+          {
+            "description": "Send welcome emails to multiple users",
+            "input": {
+              "type": "email",
+              "template": "welcome_email",
+              "recipients": [
+                {"email": "user1@example.com", "data": {"name": "Alice"}},
+                {"email": "user2@example.com", "data": {"name": "Bob"}}
+              ]
+            },
+            "output": {
+              "batch_id": "btc_345678",
+              "total": 2,
+              "sent": 2,
+              "failed": 0
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

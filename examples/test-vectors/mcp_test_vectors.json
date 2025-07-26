@@ -1,0 +1,320 @@
+[
+  {
+    "test_name": "Valid tools/list Request",
+    "description": "Properly formatted tools/list request",
+    "expected_result": "PASS",
+    "test_data": {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": "test-1",
+        "method": "tools/list"
+      },
+      "expected_response": {
+        "jsonrpc": "2.0",
+        "id": "test-1",
+        "result": {
+          "tools": [
+            {
+              "name": "test_tool",
+              "description": "A test tool",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "param": {"type": "string"}
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "test_name": "Valid tools/call Request",
+    "description": "Properly formatted tools/call request",
+    "expected_result": "PASS",
+    "test_data": {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": "test-2",
+        "method": "tools/call",
+        "params": {
+          "name": "test_tool",
+          "arguments": {
+            "param": "value"
+          }
+        }
+      },
+      "expected_response": {
+        "jsonrpc": "2.0",
+        "id": "test-2",
+        "result": {
+          "output": {
+            "result": "success"
+          }
+        }
+      }
+    }
+  },
+  {
+    "test_name": "Missing JSON-RPC Version",
+    "description": "Request without jsonrpc field",
+    "expected_result": "FAIL",
+    "error_type": "INVALID_REQUEST",
+    "test_data": {
+      "request": {
+        "id": "test-3",
+        "method": "tools/list"
+      }
+    }
+  },
+  {
+    "test_name": "Invalid JSON-RPC Version",
+    "description": "Request with wrong jsonrpc version",
+    "expected_result": "FAIL",
+    "error_type": "INVALID_REQUEST",
+    "test_data": {
+      "request": {
+        "jsonrpc": "1.0",
+        "id": "test-4",
+        "method": "tools/list"
+      }
+    }
+  },
+  {
+    "test_name": "Missing Request ID",
+    "description": "Request without id field",
+    "expected_result": "FAIL",
+    "error_type": "INVALID_REQUEST",
+    "test_data": {
+      "request": {
+        "jsonrpc": "2.0",
+        "method": "tools/list"
+      }
+    }
+  },
+  {
+    "test_name": "Missing Method",
+    "description": "Request without method field",
+    "expected_result": "FAIL",
+    "error_type": "INVALID_REQUEST",
+    "test_data": {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": "test-5"
+      }
+    }
+  },
+  {
+    "test_name": "Unknown Method",
+    "description": "Request with unsupported method",
+    "expected_result": "FAIL",
+    "error_type": "METHOD_NOT_FOUND",
+    "test_data": {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": "test-6",
+        "method": "unknown/method"
+      },
+      "expected_response": {
+        "jsonrpc": "2.0",
+        "id": "test-6",
+        "error": {
+          "code": -32601,
+          "message": "Method not found"
+        }
+      }
+    }
+  },
+  {
+    "test_name": "tools/call Missing Tool Name",
+    "description": "tools/call without tool name parameter",
+    "expected_result": "FAIL",
+    "error_type": "INVALID_PARAMS",
+    "test_data": {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": "test-7",
+        "method": "tools/call",
+        "params": {
+          "arguments": {}
+        }
+      },
+      "expected_response": {
+        "jsonrpc": "2.0",
+        "id": "test-7",
+        "error": {
+          "code": -32602,
+          "message": "Invalid params"
+        }
+      }
+    }
+  },
+  {
+    "test_name": "tools/call Unknown Tool",
+    "description": "tools/call with non-existent tool",
+    "expected_result": "FAIL",
+    "error_type": "TOOL_NOT_FOUND",
+    "test_data": {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": "test-8",
+        "method": "tools/call",
+        "params": {
+          "name": "nonexistent_tool",
+          "arguments": {}
+        }
+      },
+      "expected_response": {
+        "jsonrpc": "2.0",
+        "id": "test-8",
+        "error": {
+          "code": -32000,
+          "message": "Tool not found",
+          "data": {
+            "tool_name": "nonexistent_tool"
+          }
+        }
+      }
+    }
+  },
+  {
+    "test_name": "tools/call Invalid Arguments",
+    "description": "tools/call with invalid argument types",
+    "expected_result": "FAIL",
+    "error_type": "INVALID_ARGUMENTS",
+    "test_data": {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": "test-9",
+        "method": "tools/call",
+        "params": {
+          "name": "test_tool",
+          "arguments": {
+            "param": 123
+          }
+        }
+      },
+      "expected_response": {
+        "jsonrpc": "2.0",
+        "id": "test-9",
+        "error": {
+          "code": -32602,
+          "message": "Invalid params",
+          "data": {
+            "details": "Parameter 'param' must be a string"
+          }
+        }
+      }
+    }
+  },
+  {
+    "test_name": "tools/call Missing Required Arguments",
+    "description": "tools/call without required parameters",
+    "expected_result": "FAIL",
+    "error_type": "MISSING_ARGUMENTS",
+    "test_data": {
+      "request": {
+        "jsonrpc": "2.0",
+        "id": "test-10",
+        "method": "tools/call",
+        "params": {
+          "name": "test_tool",
+          "arguments": {}
+        }
+      },
+      "expected_response": {
+        "jsonrpc": "2.0",
+        "id": "test-10",
+        "error": {
+          "code": -32602,
+          "message": "Invalid params",
+          "data": {
+            "details": "Missing required parameter: param"
+          }
+        }
+      }
+    }
+  },
+  {
+    "test_name": "Valid Error Response",
+    "description": "Properly formatted error response",
+    "expected_result": "PASS",
+    "test_data": {
+      "response": {
+        "jsonrpc": "2.0",
+        "id": "test-11",
+        "error": {
+          "code": -32000,
+          "message": "Internal error",
+          "data": {
+            "details": "Database connection failed"
+          }
+        }
+      }
+    }
+  },
+  {
+    "test_name": "Notification Request",
+    "description": "JSON-RPC notification (no id)",
+    "expected_result": "PASS",
+    "test_data": {
+      "request": {
+        "jsonrpc": "2.0",
+        "method": "tools/ping"
+      }
+    }
+  },
+  {
+    "test_name": "Batch Request",
+    "description": "Multiple requests in a batch",
+    "expected_result": "PASS",
+    "test_data": {
+      "request": [
+        {
+          "jsonrpc": "2.0",
+          "id": "batch-1",
+          "method": "tools/list"
+        },
+        {
+          "jsonrpc": "2.0",
+          "id": "batch-2",
+          "method": "tools/call",
+          "params": {
+            "name": "test_tool",
+            "arguments": {"param": "value"}
+          }
+        }
+      ],
+      "expected_response": [
+        {
+          "jsonrpc": "2.0",
+          "id": "batch-1",
+          "result": {"tools": []}
+        },
+        {
+          "jsonrpc": "2.0",
+          "id": "batch-2",
+          "result": {"output": {"result": "success"}}
+        }
+      ]
+    }
+  },
+  {
+    "test_name": "Empty Batch Request",
+    "description": "Empty batch array",
+    "expected_result": "FAIL",
+    "error_type": "INVALID_REQUEST",
+    "test_data": {
+      "request": [],
+      "expected_response": {
+        "jsonrpc": "2.0",
+        "id": null,
+        "error": {
+          "code": -32600,
+          "message": "Invalid Request"
+        }
+      }
+    }
+  }
+]

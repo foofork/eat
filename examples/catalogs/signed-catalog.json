@@ -1,0 +1,73 @@
+{
+  "version": "1.0",
+  "metadata": {
+    "title": "Cryptographically Signed Catalog",
+    "description": "Example of a JWS-signed catalog for security demonstration",
+    "generated_at": "2024-01-20T10:00:00Z",
+    "generator": "eat-gen/1.0.0",
+    "publisher": "did:web:secure.example.com",
+    "signature": {
+      "algorithm": "RS256",
+      "keyId": "did:web:secure.example.com#key-1",
+      "jws": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXUyIsImtpZCI6ImRpZDp3ZWI6c2VjdXJlLmV4YW1wbGUuY29tI2tleS0xIn0.eyJpc3MiOiJkaWQ6d2ViOnNlY3VyZS5leGFtcGxlLmNvbSIsImlhdCI6MTcwNTc1MjAwMCwiZXhwIjoxNzA1ODM4NDAwLCJjYXRhbG9nX2hhc2giOiJzaGEyNTY6YWJjZGVmMTIzNDU2Nzg5MGFiY2RlZjEyMzQ1Njc4OTBhYmNkZWYxMjM0NTY3ODkwYWJjZGVmMTIzNDU2Nzg5MCJ9.example_signature_would_be_much_longer_this_is_just_a_demo_signature_for_documentation_purposes_only"
+    }
+  },
+  "tools": [
+    {
+      "name": "secure_get_data",
+      "description": "Securely retrieve sensitive data",
+      "version": "1.0.0",
+      "spec_url": "https://secure.example.com/specs/secure-api.yaml",
+      "spec_hash": "sha256:abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890",
+      "x-mcp-tool": {
+        "server_url": "https://secure.example.com:3001",
+        "capabilities": ["secure-data", "authenticated", "read-operations"],
+        "examples": [
+          {
+            "description": "Get encrypted user data",
+            "input": {"user_id": "usr_123", "fields": ["profile", "preferences"]},
+            "output": {
+              "user_id": "usr_123",
+              "profile": {"name": "John Doe", "email": "john@example.com"},
+              "preferences": {"theme": "dark", "notifications": true},
+              "metadata": {"encryption": "AES-256", "timestamp": "2024-01-20T10:00:00Z"}
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "audit_log",
+      "description": "Create audit log entry",
+      "version": "1.0.0",
+      "spec_url": "https://secure.example.com/specs/audit-api.yaml",
+      "spec_hash": "sha256:def4567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+      "x-mcp-tool": {
+        "server_url": "https://secure.example.com:3001",
+        "capabilities": ["audit", "compliance", "write-operations"],
+        "examples": [
+          {
+            "description": "Log data access event",
+            "input": {
+              "event_type": "data_access",
+              "user_id": "usr_123",
+              "resource": "user_profile",
+              "action": "read",
+              "metadata": {"ip": "192.168.1.100", "user_agent": "EAT-Client/1.0"}
+            },
+            "output": {
+              "audit_id": "aud_789012",
+              "timestamp": "2024-01-20T10:00:00Z",
+              "status": "logged"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "_security": {
+    "verification_instructions": "To verify this catalog signature:\n1. Extract the JWS from metadata.signature.jws\n2. Resolve the public key from the DID document at https://secure.example.com/.well-known/did.json\n3. Verify the JWS signature using RS256 algorithm\n4. Confirm catalog_hash in payload matches SHA-256 of this catalog\n5. Check timestamp validity (iat/exp)",
+    "did_document_url": "https://secure.example.com/.well-known/did.json",
+    "jwks_fallback_url": "https://secure.example.com/.well-known/jwks.json"
+  }
+}

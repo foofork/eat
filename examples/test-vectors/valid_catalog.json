@@ -1,0 +1,48 @@
+{
+  "test_name": "Valid Complete Catalog",
+  "description": "A complete, valid EAT catalog with all required and optional fields",
+  "expected_result": "PASS",
+  "test_data": {
+    "version": "1.0",
+    "metadata": {
+      "title": "Test API Catalog",
+      "description": "A catalog for testing EAT implementations",
+      "generated_at": "2024-01-20T10:00:00Z",
+      "generator": "eat-test-generator/1.0.0",
+      "publisher": "did:web:test.example.com"
+    },
+    "tools": [
+      {
+        "name": "test_tool",
+        "description": "A test tool for validation",
+        "version": "1.0.0",
+        "spec_url": "https://test.example.com/specs/test.yaml",
+        "spec_hash": "sha256:abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890",
+        "x-mcp-tool": {
+          "server_url": "http://localhost:3001",
+          "capabilities": ["testing", "validation"],
+          "examples": [
+            {
+              "description": "Basic test call",
+              "input": {
+                "test_param": "test_value"
+              },
+              "output": {
+                "result": "success",
+                "message": "Test completed"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "name": "minimal_tool",
+        "description": "Tool with minimal configuration",
+        "spec_url": "https://test.example.com/specs/minimal.yaml",
+        "x-mcp-tool": {
+          "server_url": "http://localhost:3002"
+        }
+      }
+    ]
+  }
+}

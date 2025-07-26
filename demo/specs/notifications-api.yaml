@@ -1,0 +1,320 @@
+openapi: 3.0.0
+info:
+  title: Notifications API
+  version: 1.0.0
+  description: Multi-channel notification system with MCP tool integration
+servers:
+  - url: http://localhost:3003
+paths:
+  /notifications/send:
+    post:
+      operationId: send_notification
+      summary: Send a single notification
+      x-mcp-tool:
+        server_url: http://localhost:3003
+        capabilities:
+          - notifications
+          - messaging
+          - communication
+        examples:
+          - description: Send welcome email
+            input:
+              type: "email"
+              recipient: "newuser@example.com"
+              subject: "Welcome to EAT Framework!"
+              message: "Thank you for joining our platform. Get started by exploring our tools."
+              priority: "normal"
+            output:
+              notification_id: "ntf_welcome_001"
+              status: "sent"
+              sent_at: "2024-01-20T10:45:00Z"
+              delivery_method: "email"
+          - description: Send SMS alert
+            input:
+              type: "sms"
+              recipient: "+1-555-0123"
+              message: "Your report is ready for download. Check your email for details."
+              priority: "high"
+            output:
+              notification_id: "ntf_sms_002"
+              status: "sent"
+              sent_at: "2024-01-20T10:46:00Z"
+              delivery_method: "sms"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - type
+                - recipient
+                - message
+              properties:
+                type:
+                  type: string
+                  enum: ["email", "sms", "webhook"]
+                recipient:
+                  type: string
+                  description: Email address, phone number, or webhook URL
+                subject:
+                  type: string
+                  description: Required for email notifications
+                message:
+                  type: string
+                priority:
+                  type: string
+                  enum: ["low", "normal", "high", "urgent"]
+                  default: "normal"
+                metadata:
+                  type: object
+                  additionalProperties: true
+                schedule_at:
+                  type: string
+                  format: date-time
+                  description: Schedule notification for future delivery
+      responses:
+        '200':
+          description: Notification sent
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  notification_id:
+                    type: string
+                  status:
+                    type: string
+                    enum: ["sent", "scheduled", "failed"]
+                  sent_at:
+                    type: string
+                    format: date-time
+                  delivery_method:
+                    type: string
+                  error:
+                    type: string
+  /notifications/bulk:
+    post:
+      operationId: send_bulk_notifications
+      summary: Send notifications to multiple recipients
+      x-mcp-tool:
+        server_url: http://localhost:3003
+        capabilities:
+          - notifications
+          - messaging
+          - bulk-operations
+        examples:
+          - description: Send system update emails
+            input:
+              template: "system_update"
+              recipients:
+                - email: "admin@example.com"
+                  data:
+                    name: "Admin User"
+                    role: "administrator"
+                - email: "user@example.com"
+                  data:
+                    name: "Regular User"
+                    role: "user"
+              priority: "normal"
+            output:
+              batch_id: "batch_su_20240120_001"
+              total_recipients: 2
+              sent: 2
+              failed: 0
+              scheduled: 0
+              batch_status: "completed"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - template
+                - recipients
+              properties:
+                template:
+                  type: string
+                  description: Template ID for consistent messaging
+                recipients:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      email:
+                        type: string
+                        format: email
+                      phone:
+                        type: string
+                      webhook_url:
+                        type: string
+                        format: uri
+                      data:
+                        type: object
+                        additionalProperties: true
+                priority:
+                  type: string
+                  enum: ["low", "normal", "high", "urgent"]
+                  default: "normal"
+                schedule_at:
+                  type: string
+                  format: date-time
+      responses:
+        '200':
+          description: Bulk notifications processed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  batch_id:
+                    type: string
+                  total_recipients:
+                    type: integer
+                  sent:
+                    type: integer
+                  failed:
+                    type: integer
+                  scheduled:
+                    type: integer
+                  batch_status:
+                    type: string
+                    enum: ["completed", "processing", "failed"]
+                  failures:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        recipient:
+                          type: string
+                        error:
+                          type: string
+  /notifications/{notification_id}/status:
+    get:
+      operationId: get_notification_status
+      summary: Get notification delivery status
+      x-mcp-tool:
+        server_url: http://localhost:3003
+        capabilities:
+          - notifications
+          - status-tracking
+          - delivery-confirmation
+        examples:
+          - description: Check notification delivery
+            input:
+              notification_id: "ntf_welcome_001"
+            output:
+              notification_id: "ntf_welcome_001"
+              status: "delivered"
+              delivery_method: "email"
+              sent_at: "2024-01-20T10:45:00Z"
+              delivered_at: "2024-01-20T10:45:03Z"
+              delivery_events:
+                - timestamp: "2024-01-20T10:45:00Z"
+                  event: "sent"
+                - timestamp: "2024-01-20T10:45:03Z"
+                  event: "delivered"
+      parameters:
+        - name: notification_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Notification status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  notification_id:
+                    type: string
+                  status:
+                    type: string
+                    enum: ["pending", "sent", "delivered", "failed", "bounced"]
+                  delivery_method:
+                    type: string
+                  sent_at:
+                    type: string
+                    format: date-time
+                  delivered_at:
+                    type: string
+                    format: date-time
+                  failed_at:
+                    type: string
+                    format: date-time
+                  delivery_events:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        timestamp:
+                          type: string
+                          format: date-time
+                        event:
+                          type: string
+                        details:
+                          type: string
+        '404':
+          description: Notification not found
+  /notifications/templates:
+    get:
+      operationId: list_notification_templates
+      summary: List available notification templates
+      x-mcp-tool:
+        server_url: http://localhost:3003
+        capabilities:
+          - notifications
+          - templates
+          - configuration
+        examples:
+          - description: Get all available templates
+            input: {}
+            output:
+              templates:
+                - id: "welcome_email"
+                  name: "Welcome Email"
+                  type: "email"
+                  variables: ["name", "activation_link"]
+                  description: "Welcome new users to the platform"
+                - id: "system_update"
+                  name: "System Update Notification"
+                  type: "email"
+                  variables: ["name", "role", "update_details"]
+                  description: "Notify users about system updates"
+                - id: "alert_sms"
+                  name: "Alert SMS"
+                  type: "sms"
+                  variables: ["alert_message", "action_required"]
+                  description: "Urgent alerts via SMS"
+      responses:
+        '200':
+          description: List of templates
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  templates:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        name:
+                          type: string
+                        type:
+                          type: string
+                          enum: ["email", "sms", "webhook"]
+                        variables:
+                          type: array
+                          items:
+                            type: string
+                        description:
+                          type: string
+                        created_at:
+                          type: string
+                          format: date-time

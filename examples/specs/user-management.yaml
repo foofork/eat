@@ -1,0 +1,232 @@
+openapi: 3.0.0
+info:
+  title: User Management API
+  version: 1.0.0
+  description: API for managing users with MCP tool integration
+servers:
+  - url: http://localhost:3001
+paths:
+  /users:
+    get:
+      operationId: list_users
+      summary: List all users
+      description: Retrieve a paginated list of all users
+      x-mcp-tool:
+        server_url: http://localhost:3001
+        capabilities:
+          - user-management
+          - read-operations
+        examples:
+          - description: List first page of users
+            input: 
+              limit: 10
+              offset: 0
+            output:
+              users:
+                - id: 1
+                  name: John Doe
+                  email: john@example.com
+                - id: 2
+                  name: Jane Smith
+                  email: jane@example.com
+              total: 42
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+            minimum: 1
+            maximum: 100
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+      responses:
+        '200':
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  users:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/User'
+                  total:
+                    type: integer
+    post:
+      operationId: create_user
+      summary: Create a new user
+      x-mcp-tool:
+        server_url: http://localhost:3001
+        capabilities:
+          - user-management
+          - write-operations
+        examples:
+          - description: Create a new user
+            input:
+              name: Alice Johnson
+              email: alice@example.com
+              role: developer
+            output:
+              id: 3
+              name: Alice Johnson
+              email: alice@example.com
+              role: developer
+              created_at: "2024-01-20T10:30:00Z"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - email
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                role:
+                  type: string
+                  enum: [admin, developer, user]
+      responses:
+        '201':
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+  /users/{id}:
+    get:
+      operationId: get_user
+      summary: Get user by ID
+      x-mcp-tool:
+        server_url: http://localhost:3001
+        capabilities:
+          - user-management
+          - read-operations
+        examples:
+          - description: Get specific user
+            input:
+              id: 123
+            output:
+              id: 123
+              name: Bob Wilson
+              email: bob@example.com
+              role: admin
+              created_at: "2024-01-15T08:00:00Z"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: User found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: User not found
+    put:
+      operationId: update_user
+      summary: Update user
+      x-mcp-tool:
+        server_url: http://localhost:3001
+        capabilities:
+          - user-management
+          - write-operations
+        examples:
+          - description: Update user role
+            input:
+              id: 123
+              role: admin
+            output:
+              id: 123
+              name: Bob Wilson
+              email: bob@example.com
+              role: admin
+              updated_at: "2024-01-20T11:00:00Z"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                role:
+                  type: string
+                  enum: [admin, developer, user]
+      responses:
+        '200':
+          description: User updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+    delete:
+      operationId: delete_user
+      summary: Delete user
+      x-mcp-tool:
+        server_url: http://localhost:3001
+        capabilities:
+          - user-management
+          - write-operations
+        examples:
+          - description: Delete a user
+            input:
+              id: 123
+            output:
+              message: User 123 deleted successfully
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: User deleted
+        '404':
+          description: User not found
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        role:
+          type: string
+          enum: [admin, developer, user]
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
