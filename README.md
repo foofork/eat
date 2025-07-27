@@ -31,6 +31,43 @@ Drop one signed file at `/.well-known/api-catalog` and everyone discovers your t
 - **Cryptographically signed** for security and integrity
 - **Human + AI readable** - same catalog, different interfaces
 
+## Protocol Architecture: EAT and MCP as Complementary Systems
+
+### Critical Architectural Distinction
+
+**EAT and MCP are peer protocols, not hierarchical.** This is a fundamental design principle that applies universally across all platforms:
+
+#### **The Correct Pattern: Parallel Protocol Integration**
+
+```mermaid
+graph TB
+    subgraph "AI Application Layer"
+        AGENT[AI Agent/Application]
+    end
+    
+    subgraph "Protocol Layer (Parallel & Independent)"
+        MCP[MCP Client]
+        EAT[EAT Client]
+    end
+    
+    subgraph "Tool Ecosystem"
+        MCP_SERVERS[MCP Servers<br/>Context & AI-Native Tools]
+        HTTP_APIS[HTTP/REST APIs<br/>Web Services]
+        GRAPHQL[GraphQL APIs<br/>Data Services]
+        EAT_CATALOGS[EAT Catalogs<br/>Tool Directories]
+    end
+    
+    AGENT --> MCP
+    AGENT --> EAT
+    MCP --> MCP_SERVERS
+    EAT --> HTTP_APIS
+    EAT --> GRAPHQL
+    EAT --> EAT_CATALOGS
+    
+    %% Optional Bridge (not dependency)
+    EAT -.->|Optional Bridge| MCP_SERVERS
+```
+
 ## 🚀 Quick Start
 
 ### Try the Demo (2 minutes)
