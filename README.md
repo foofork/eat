@@ -94,10 +94,6 @@ async def main():
 asyncio.run(main())
 ```
 
-### Install the Package
-```bash
-pip install -e .
-```
 
 ## ⚡ Key Features
 
